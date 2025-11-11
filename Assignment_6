@@ -1,34 +1,50 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 
-function Greeting(props) {
-  return <h2>Hello, {props.name} 👋</h2>;
-}
+function App() {
+  const [users, setUsers] = useState([]);       // Data state
+  const [loading, setLoading] = useState(true); // Loading state
+  const [error, setError] = useState(null);     // Error state
 
-function Counter() {
-  const [count, setCount] = useState(0);
+  useEffect(() => {
+    // Fetch data when component mounts
+    axios
+      .get("https://jsonplaceholder.typicode.com/users")
+      .then((response) => {
+        setUsers(response.data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError("Failed to fetch data. Try again later.");
+        setLoading(false);
+      });
+  }, []);
+
+  // Conditional Rendering
+  if (loading) return <p>Loading data...</p>;
+  if (error) return <p style={{ color: "red" }}>{error}</p>;
+
   return (
-    <div>
-      <h3>Count: {count}</h3>
-      <button onClick={() => setCount(count + 1)}>+</button>
-      <button onClick={() => setCount(count - 1)}>-</button>
+    <div style={{ textAlign: "center", marginTop: "20px" }}>
+      <h2>User List (Fetched via Axios)</h2>
+      <ul style={{ listStyle: "none", padding: 0 }}>
+        {users.map((user) => (
+          <li
+            key={user.id}
+            style={{
+              backgroundColor: "#f2f2f2",
+              margin: "10px auto",
+              padding: "10px",
+              width: "50%",
+              borderRadius: "8px",
+            }}
+          >
+            <strong>{user.name}</strong> — {user.email}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
 
-export default function App() {
-  const [name, setName] = useState("Gayatri");
-
-  return (
-    <div>
-      <h1>React Example 🚀</h1>
-      <Greeting name={name} />
-      <Counter />
-
-      <input
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        placeholder="Enter name"
-      />
-    </div>
-  );
-}
+export default App;
